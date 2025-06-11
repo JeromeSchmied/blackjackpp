@@ -1,12 +1,12 @@
 #include "headers/statistics.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <utility>
 
-#include "headers/color.hpp"
 #include "tui.hpp"
 
 namespace color = tui::text::color;
@@ -19,24 +19,24 @@ PlayerSet::PlayerSet() : name("N/A"), cash(1000), wins(0), loses(0) {}
 //////////////* Getter Functions *////
 
 // Returns name of Player
-std::string PlayerSet::getName() { return name; }
+std::string PlayerSet::getName() { return this->name; }
 
 // Returns cash of Player
-int PlayerSet::getCash() const { return cash; }
+int PlayerSet::getCash() const { return this->cash; }
 
 // Returns wins of Player
-int PlayerSet::getWins() const { return wins; }
+int PlayerSet::getWins() const { return this->wins; }
 
 // Returns loses of Player
-int PlayerSet::getLoses() const { return loses; }
+int PlayerSet::getLoses() const { return this->loses; }
 
 //////////////* Setter Function *////
 
 void PlayerSet::setValues(std::string nm, int c, int w, int l) {
-    name = std::move(nm);
-    cash = c;
-    wins = w;
-    loses = l;
+    this->name = std::move(nm);
+    this->cash = c;
+    this->wins = w;
+    this->loses = l;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -58,16 +58,16 @@ Statistics::Statistics() {
 
 bool Statistics::check(Player pl) {
     bool rewrite = false;
-    if (pl.getCash() > p[0].getCash()) {
-        p[0].setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
+    if (pl.getCash() > this->p.at(0).getCash()) {
+        this->p.at(0).setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
         rewrite = true;
     }
-    if (pl.getWins() > p[1].getWins()) {
-        p[1].setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
+    if (pl.getWins() > this->p.at(1).getWins()) {
+        this->p.at(1).setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
         rewrite = true;
     }
-    if (pl.getLoses() > p[2].getLoses()) {
-        p[2].setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
+    if (pl.getLoses() > this->p.at(2).getLoses()) {
+        this->p.at(2).setValues(pl.getName(), pl.getCash(), pl.getWins(), pl.getLoses());
         rewrite = true;
     }
     if (rewrite) {
@@ -79,8 +79,8 @@ bool Statistics::check(Player pl) {
 //////////////* Printing *////
 
 void Statistics::print() {
-    int maxlength =
-        std::max({p.at(0).getName().length(), p.at(0).getName().length(), p.at(0).getName().length()});
+    int maxlength = static_cast<int>(
+        std::max({this->p.at(0).getName().length(), this->p.at(0).getName().length(), this->p.at(0).getName().length()}));
     for (int i = 0; i < 3; i++) {
         switch (i) {
             case 0:
@@ -91,11 +91,14 @@ void Statistics::print() {
                 break;
             case 2:
                 std::cout << "MAX LOSES ||||||||| ";
+                break;
+            default:
+                break;
         }
-        std::cout << std::setw(maxlength + 1) << p[i].getName() << "\t | \t" << color::green_fg()
-                  << "Cash: " << std::setw(7) << p[i].getCash() << "\t | \t" << color::yellow_fg()
-                  << "Wins: " << std::setw(5) << p[i].getWins() << "\t | \t" << color::red_fg()
-                  << "Loses: " << std::setw(5) << p[i].getLoses() << style::reset_style() << "\n";
+        std::cout << std::setw(maxlength + 1) << this->p.at(i).getName() << "\t | \t" << color::green_fg()
+                  << "Cash: " << std::setw(7) << this->p.at(i).getCash() << "\t | \t" << color::yellow_fg()
+                  << "Wins: " << std::setw(5) << this->p.at(i).getWins() << "\t | \t" << color::red_fg()
+                  << "Loses: " << std::setw(5) << this->p.at(i).getLoses() << style::reset_style() << "\n";
     }
 }
 
@@ -105,16 +108,16 @@ void Statistics::saveStats() {
     std::fstream f1;
     f1.open("data/statistics.bin", std::ios::out | std::ios::binary);
     for (int i = 0; i < 3; i++) {
-        std::string sName = p[i].getName();
-        int nameSize = sName.size();
-        int sCash = p[i].getCash();
-        int sWins = p[i].getWins();
-        int sLoses = p[i].getLoses();
-        f1.write((char*)&nameSize, sizeof(nameSize));
-        f1.write(sName.c_str(), sName.size());
-        f1.write((char*)&sCash, sizeof(sCash));
-        f1.write((char*)&sWins, sizeof(sWins));
-        f1.write((char*)&sLoses, sizeof(sLoses));
+        std::string sName = this->p.at(i).getName();
+        int nameSize = static_cast<int>(sName.size());
+        int sCash = this->p.at(i).getCash();
+        int sWins = this->p.at(i).getWins();
+        int sLoses = this->p.at(i).getLoses();
+        f1.write(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+        f1.write(sName.c_str(), static_cast<int64_t>(sName.size()));
+        f1.write(reinterpret_cast<char*>(&sCash), sizeof(sCash));
+        f1.write(reinterpret_cast<char*>(&sWins), sizeof(sWins));
+        f1.write(reinterpret_cast<char*>(&sLoses), sizeof(sLoses));
     }
     f1.close();
 }
@@ -128,13 +131,13 @@ void Statistics::loadStats() {
         int sCash = 0;
         int sWins = 0;
         int sLoses = 0;
-        f1.read((char*)&nameSize, sizeof(nameSize));
+        f1.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
         sName.resize(nameSize);
-        f1.read(&sName[0], sName.size());
-        f1.read((char*)&sCash, sizeof(sCash));
-        f1.read((char*)&sWins, sizeof(sWins));
-        f1.read((char*)&sLoses, sizeof(sLoses));
-        p[i].setValues(sName, sCash, sWins, sLoses);
+        f1.read(&sName.at(0), static_cast<int64_t>(sName.size()));
+        f1.read(reinterpret_cast<char*>(&sCash), sizeof(sCash));
+        f1.read(reinterpret_cast<char*>(&sWins), sizeof(sWins));
+        f1.read(reinterpret_cast<char*>(&sLoses), sizeof(sLoses));
+        this->p.at(i).setValues(sName, sCash, sWins, sLoses);
     }
     f1.close();
 }

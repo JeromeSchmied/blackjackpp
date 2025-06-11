@@ -8,16 +8,16 @@ Human::Human() : sum(0) {}
 // Getter Function for sum to check end of game
 int Human::getSum() {
     switchAce();
-    return sum;
+    return this->sum;
 }
 
 // Switches Ace between 1 and 11
 void Human::switchAce() {
-    if (sum > 21) {
-        for (auto& i : hand) {
+    if (this->sum > 21) {
+        for (auto& i : this->hand) {
             if (i.getNumber() == 1 && !(i.getBlock())) {
                 i.setBlock(true);
-                sum -= 10;
+                this->sum -= 10;
                 return;
             }
         }
@@ -26,26 +26,26 @@ void Human::switchAce() {
 
 // Adds card to Human's hand
 void Human::addCard(Card c) {
-    hand.push_back(c);
+    this->hand.push_back(c);
     if (c.getNumber() > 10) {
         c.setNumber(10);
     } else if (c.getNumber() == 1) {
         c.setNumber(11);
     }
-    sum += c.getNumber();
+    this->sum += c.getNumber();
 }
 
 // Clears Human's hand
 void Human::clearCards() {
-    hand.clear();
-    sum = 0;
+    this->hand.clear();
+    this->sum = 0;
 }
 
 // Prints Human's cards
 void Human::printCards() {
     std::cout << "\n";
     for (int i = 0; i < 6; i++) {
-        for (auto& j : hand) {
+        for (auto& j : this->hand) {
             switch (i) {
                 case 0:
                     std::cout << ".------.";
@@ -64,6 +64,8 @@ void Human::printCards() {
                     break;
                 case 5:
                     std::cout << "`------'";
+                default:
+                    break;
             }
         }
         std::cout << "\n";

@@ -23,7 +23,7 @@ class Game {
     bool startBet();
     bool startGame();
     void beginGame();
-    void beginMenu(bool rep, const std::string& message);
+    void beginMenu(const std::string& message = "");
     void saveGame();
     void loadGame();
     void printStatistics();

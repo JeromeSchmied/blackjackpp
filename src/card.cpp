@@ -7,17 +7,17 @@ Card::Card() : number(0), suit('\0'), block(false) {}
 
 Card::Card(int no, char s) : number(no), suit(s), block(false) {}
 
-int Card::getNumber() const { return number; }
+int Card::getNumber() const { return this->number; }
 
-char Card::getSuit() const { return suit; }
-bool Card::getBlock() const { return block; }
+char Card::getSuit() const { return this->suit; }
+bool Card::getBlock() const { return this->block; }
 
-void Card::setNumber(int no) { number = no; }
-void Card::setSuit(char c) { suit = c; }
-void Card::setBlock(bool b) { block = b; }
+void Card::setNumber(int no) { this->number = no; }
+void Card::setSuit(char c) { this->suit = c; }
+void Card::setBlock(bool b) { this->block = b; }
 
 char Card::getPrintNumber() const {
-    switch (number) {
+    switch (this->number) {
         case 1:
             return 'A';
         case 10:
@@ -30,11 +30,11 @@ char Card::getPrintNumber() const {
             return 'K';
         default:
             std::array<char, 10> digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-            return digits.at(number);
+            return digits.at(this->number);
     }
 }
 void Card::printCardL1() const {
-    switch (suit) {
+    switch (this->suit) {
         case 'C':
             std::cout << "| :(): |";
             break;
@@ -51,7 +51,7 @@ void Card::printCardL1() const {
 }
 
 void Card::printCardL2() const {
-    switch (suit) {
+    switch (this->suit) {
         case 'C':
             std::cout << "| ()() |";
             break;

@@ -1,14 +1,12 @@
 #include "headers/game.hpp"
 
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <vector>
 
-#include "headers/color.hpp"
-#include "headers/compatible.hpp"
 #include "headers/print.hpp"
-#include "input.hpp"
 #include "print.hpp"
 #include "tui.hpp"
 
@@ -17,14 +15,14 @@ namespace style = tui::text::style;
 
 //////////////* Default Constructor *////
 
-Game::Game() { deck.initializeDeck(); }
+Game::Game() { this->deck.initializeDeck(); }
 
 //////////////* Deals dealer towards the end *////
 
 bool Game::dealDealer() {
-    if (dealer.getSum() < player.getSum()) {
-        while (dealer.getSum() < 17) {
-            dealer.addCard(deck.deal());
+    if (this->dealer.getSum() < this->player.getSum()) {
+        while (this->dealer.getSum() < 17) {
+            this->dealer.addCard(this->deck.deal());
             if (checkWins()) {
                 return false;
             }
@@ -40,21 +38,20 @@ bool Game::dealDealer() {
 //////////////* Checkers *////
 
 char Game::compareSum() {
-    if (player.getSum() > dealer.getSum()) {
+    if (this->player.getSum() > this->dealer.getSum()) {
         printTop();
         std::cout << tui::string(Print::you_win()).yellow() << style::reset_style() << "\n    (Dealer has "
-                  << dealer.getSum() << ")\n";
+                  << this->dealer.getSum() << ")\n";
         return 'p';
     }
-    if (dealer.getSum() > player.getSum()) {
+    if (this->dealer.getSum() > this->player.getSum()) {
         printTop();
-        std::cout << tui::string(Print::dealer_wins()).red() << "\n    (" << dealer.getSum() << ")\n";
+        std::cout << tui::string(Print::dealer_wins()).red() << "\n    (" << this->dealer.getSum() << ")\n";
         return 'd';
-    } else {
-        printTop();
-        std::cout << tui::string(Print::draw()).magenta();
-        return 'n';
     }
+    printTop();
+    std::cout << tui::string(Print::draw()).magenta();
+    return 'n';
 }
 
 bool Game::checkWins() {
@@ -62,35 +59,36 @@ bool Game::checkWins() {
         case 'f':
             return false;
         case 'd':
-            player.incrementLoses();
+            this->player.incrementLoses();
             return true;
         case 'p':
-            player.incrementWins();
-            player.addCash((player.getBet() * 2));
+            this->player.incrementWins();
+            this->player.addCash((this->player.getBet() * 2));
             return true;
+        default:
+            return false;
     }
-    return false;
 }
 
 char Game::checkEnd() {
-    if (dealer.getSum() > 21 || player.getSum() > 21) {
+    if (this->dealer.getSum() > 21 || this->player.getSum() > 21) {
         printTop();
-        std::cout << tui::string(Print::bust()).red() << "\n    [Dealer : " << dealer.getSum() << " | "
-                  << player.getName() << " : " << player.getSum() << "]\n";
-        if (dealer.getSum() > 21) {
+        std::cout << tui::string(Print::bust()).red() << "\n    [Dealer : " << this->dealer.getSum()
+                  << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
+        if (this->dealer.getSum() > 21) {
             return 'p';
         }
-        if (player.getSum() > 21) {
+        if (this->player.getSum() > 21) {
             return 'd';
         }
-    } else if (dealer.getSum() == 21 || player.getSum() == 21) {
+    } else if (this->dealer.getSum() == 21 || this->player.getSum() == 21) {
         printTop();
-        std::cout << tui::string(Print::blackjack()).green() << "\n    [Dealer : " << dealer.getSum()
-                  << " | " << player.getName() << " : " << player.getSum() << "]\n";
-        if (dealer.getSum() == 21) {
+        std::cout << tui::string(Print::blackjack()).green() << "\n    [Dealer : " << this->dealer.getSum()
+                  << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
+        if (this->dealer.getSum() == 21) {
             return 'd';
         }
-        if (player.getSum() == 21) {
+        if (this->player.getSum() == 21) {
             return 'p';
         }
     }
@@ -100,22 +98,25 @@ char Game::checkEnd() {
 //////////////* Game Starters *////
 
 bool Game::startBet() {
-    if (player.getCash() > 0) {
+    if (this->player.getCash() > 0) {
         while (true) {
             printTop();
-            std::cout << "Place your bet!\t\t $" << tui::string(player.getBet()).green()
+            std::cout << "Place your bet!\t\t $" << tui::string(this->player.getBet()).green()
                       << "\n[W = Raise Bet | S = Decrease Bet | R = Done]\n";
-            int c = toupper(read_ch());
-            switch (c) {
-                case 87:
-                    if (player.getCash() >= 5) {
-                        player.setBet(5);
+            switch (toupper(read_ch())) {
+                case 'W':
+                    if (this->player.getCash() >= 5) {
+                        this->player.setBet(5);
                     }
                     break;
-                case 83:
-                    if (player.getBet() >= 5) {
-                        player.setBet(-5);
+                case 'S':
+                    if (this->player.getBet() >= 5) {
+                        this->player.setBet(-5);
                     }
+                    break;
+                case 'R':
+                    return true;
+                default:
                     break;
             }
         }
@@ -125,10 +126,10 @@ bool Game::startBet() {
 }
 
 bool Game::startGame() {
-    player.addCard(deck.deal());
-    dealer.addCard(deck.deal());
-    player.addCard(deck.deal());
-    dealer.addCard(deck.deal());
+    this->player.addCard(this->deck.deal());
+    this->dealer.addCard(this->deck.deal());
+    this->player.addCard(this->deck.deal());
+    this->dealer.addCard(this->deck.deal());
     printBody();
     if (checkWins()) {
         return false;
@@ -137,7 +138,7 @@ bool Game::startGame() {
         std::cout << tui::string("\n\nH : Hit | S : Stand\n").yellow();
         int c = toupper(read_ch());
         if (c == 72) {
-            player.addCard(deck.deal());
+            this->player.addCard(this->deck.deal());
             printBody();
             if (checkWins()) {
                 return false;
@@ -152,11 +153,11 @@ bool Game::startGame() {
 void Game::beginGame() {
     char cont = 0;
     do {
-        if (deck.getSize() < 36) {
-            deck.initializeDeck();
+        if (this->deck.getSize() < 36) {
+            this->deck.initializeDeck();
         }
-        player.clearCards();
-        dealer.clearCards();
+        this->player.clearCards();
+        this->dealer.clearCards();
         if (!startBet()) {
             std::cout << tui::string("\nBankrupt! Game over.\n").yellow();
             break;
@@ -165,25 +166,27 @@ void Game::beginGame() {
             if (dealDealer()) {
                 switch (compareSum()) {
                     case 'p':
-                        player.incrementWins();
-                        player.addCash((player.getBet() * 2));
+                        this->player.incrementWins();
+                        this->player.addCash((this->player.getBet() * 2));
                         break;
                     case 'd':
-                        player.incrementLoses();
+                        this->player.incrementLoses();
                         break;
                     case 'n':
-                        player.addCash(player.getBet());
+                        this->player.addCash(this->player.getBet());
+                        break;
+                    default:
                         break;
                 }
             }
         }
         std::cout << tui::string(Print::dealer_border()).red();
-        dealer.printCards();
+        this->dealer.printCards();
         std::cout << tui::string(Print::player_border()).cyan();
-        player.printCards();
-        std::cout << color::yellow_fg() << "\nYour wins: " << player.getWins() << color::red_fg()
-                  << "\nYour loses: " << player.getLoses() << style::reset_style() << "\n";
-        if (s.check(player)) {
+        this->player.printCards();
+        std::cout << color::yellow_fg() << "\nYour wins: " << this->player.getWins() << color::red_fg()
+                  << "\nYour loses: " << this->player.getLoses() << style::reset_style() << "\n";
+        if (s.check(this->player)) {
             std::cout << tui::string("High Score!\n").yellow();
         }
         std::cout << "\nContinue playing? [Y/N]: ";
@@ -199,12 +202,12 @@ void Game::beginGame() {
 
 //////////////* Main Method to be Called *////
 
-void Game::beginMenu(bool rep, const std::string &message) {
+void Game::beginMenu(const std::string &message) {
     tui::screen::clear();
     tui::cursor::home();
     std::cout << tui::string(Print::title_blackjack()).yellow() << "\n";
     std::cout << Print::begin_menu() << "\n";
-    if (rep) {
+    if (!message.empty()) {
         std::cout << tui::string(message).red() << "\n";
     }
     char c = 0;
@@ -215,7 +218,7 @@ void Game::beginMenu(bool rep, const std::string &message) {
         case '1':
             std::cout << "Enter player name: ";
             std::cin >> nm;
-            player.setName(nm);
+            this->player.setName(nm);
             beginGame();
             break;
         case '2':
@@ -224,17 +227,17 @@ void Game::beginMenu(bool rep, const std::string &message) {
             break;
         case '3':
             printStatistics();
-            beginMenu(false, "");
+            beginMenu();
             break;
         case '4':
             printInstructions();
-            beginMenu(false, "");
+            beginMenu();
             break;
         case '5':
             exit(0);
             break;
         default:
-            beginMenu(true, "Invalid input.");
+            beginMenu("Invalid input.");
     }
 }
 
@@ -251,14 +254,14 @@ void Game::saveGame() {
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
     } while (filename == "statistics");
     path += filename + ".bin";
-    std::string sName = player.getName();
-    int sCash = player.getCash();
-    int sWins = player.getWins();
-    int sLoses = player.getLoses();
-    int nameSize = sName.size();
+    std::string sName = this->player.getName();
+    int sCash = this->player.getCash();
+    int sWins = this->player.getWins();
+    int sLoses = this->player.getLoses();
+    int nameSize = static_cast<int>(sName.size());
     f2.open(path, std::ios::in | std::ios::binary);
     if (!f2.fail()) {
-        char choice;
+        char choice = 0;
         std::cout << tui::string("File already exists.").red() << " Do you want to overwrite it? [Y/N]: ";
         std::cin >> choice;
         if (choice == 'N' || choice == 'n') {
@@ -267,11 +270,11 @@ void Game::saveGame() {
     }
     f2.close();
     f1.open(path, std::ios::out | std::ios::binary);
-    f1.write((char *)&nameSize, sizeof(nameSize));
-    f1.write(sName.c_str(), sName.size());
-    f1.write((char *)&sCash, sizeof(sCash));
-    f1.write((char *)&sWins, sizeof(sWins));
-    f1.write((char *)&sLoses, sizeof(sLoses));
+    f1.write(reinterpret_cast<char *>(&nameSize), sizeof(nameSize));
+    f1.write(sName.c_str(), static_cast<int64_t>(sName.size()));
+    f1.write(reinterpret_cast<char *>(&sCash), sizeof(sCash));
+    f1.write(reinterpret_cast<char *>(&sWins), sizeof(sWins));
+    f1.write(reinterpret_cast<char *>(&sLoses), sizeof(sLoses));
     f1.close();
 }
 
@@ -292,12 +295,12 @@ void Game::loadGame() {
         int sWins = 0;
         int sLoses = 0;
         int nameSize = 0;
-        f1.read((char *)&nameSize, sizeof(nameSize));
+        f1.read(reinterpret_cast<char *>(&nameSize), sizeof(nameSize));
         sName.resize(nameSize);
-        f1.read(&sName[0], sName.size());
-        f1.read((char *)&sCash, sizeof(sCash));
-        f1.read((char *)&sWins, sizeof(sWins));
-        f1.read((char *)&sLoses, sizeof(sLoses));
+        f1.read(&sName.at(0), static_cast<int64_t>(sName.size()));
+        f1.read(reinterpret_cast<char *>(&sCash), sizeof(sCash));
+        f1.read(reinterpret_cast<char *>(&sWins), sizeof(sWins));
+        f1.read(reinterpret_cast<char *>(&sLoses), sizeof(sLoses));
         f1.close();
         player.setName(sName);
         player.addCash(sCash - player.getCash());
@@ -308,7 +311,7 @@ void Game::loadGame() {
             player.incrementLoses();
         }
     } else {
-        beginMenu(true, "File does not exist.");
+        beginMenu("File does not exist.");
     }
 }
 

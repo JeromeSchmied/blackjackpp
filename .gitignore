@@ -64,9 +64,3 @@ build.ninja
 # Misc
 blackjack
 *.bin
-<<<<<<< HEAD
-
-.cache
-build
-=======
->>>>>>> 0f94513 (fix: use cpptui instead of manual impl)
