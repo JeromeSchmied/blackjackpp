@@ -39,18 +39,20 @@ bool Game::dealDealer() {
 
 char Game::compareSum() {
     if (this->player.getSum() > this->dealer.getSum()) {
-        printTop();
-        std::cout << tui::string(Print::you_win()).yellow() << style::reset_style() << "\n    (Dealer has "
-                  << this->dealer.getSum() << ")\n";
+        // printTop();
+        // std::cout << tui::string(Print::you_win()).yellow() << style::reset_style() << "\n    (Dealer has
+        // "
+        // << this->dealer.getSum() << ")\n";
         return 'p';
     }
     if (this->dealer.getSum() > this->player.getSum()) {
-        printTop();
-        std::cout << tui::string(Print::dealer_wins()).red() << "\n    (" << this->dealer.getSum() << ")\n";
+        // printTop();
+        // std::cout << tui::string(Print::dealer_wins()).red() << "\n    (" << this->dealer.getSum() <<
+        // ")\n";
         return 'd';
     }
-    printTop();
-    std::cout << tui::string(Print::draw()).magenta();
+    // printTop();
+    // std::cout << tui::string(Print::draw()).magenta();
     return 'n';
 }
 
@@ -72,9 +74,9 @@ bool Game::checkWins() {
 
 char Game::checkEnd() {
     if (this->dealer.getSum() > 21 || this->player.getSum() > 21) {
-        printTop();
-        std::cout << tui::string(Print::bust()).red() << "\n    [Dealer : " << this->dealer.getSum()
-                  << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
+        // printTop();
+        // std::cout << tui::string(Print::bust()).red() << "\n    [Dealer : " << this->dealer.getSum()
+        // << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
         if (this->dealer.getSum() > 21) {
             return 'p';
         }
@@ -82,9 +84,10 @@ char Game::checkEnd() {
             return 'd';
         }
     } else if (this->dealer.getSum() == 21 || this->player.getSum() == 21) {
-        printTop();
-        std::cout << tui::string(Print::blackjack()).green() << "\n    [Dealer : " << this->dealer.getSum()
-                  << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
+        // printTop();
+        // std::cout << tui::string(Print::blackjack()).green() << "\n    [Dealer : " <<
+        // this->dealer.getSum()
+        // << " | " << this->player.getName() << " : " << this->player.getSum() << "]\n";
         if (this->dealer.getSum() == 21) {
             return 'd';
         }
@@ -115,6 +118,7 @@ bool Game::startBet() {
                     }
                     break;
                 case 'R':
+                case '\n':
                     return true;
                 default:
                     break;

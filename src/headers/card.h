@@ -1,5 +1,7 @@
 #pragma once
 
+#include <format>
+#include <string>
 class Card {
    private:
     int number;  // Card Number
@@ -24,4 +26,7 @@ class Card {
     char getPrintNumber() const;
     void printCardL1() const;
     void printCardL2() const;
+    std::string dbg() const {
+        return std::format("{{number: {}, suit: {}, block: {}, }}", this->number, this->suit, this->block);
+    }
 };
