@@ -12,7 +12,7 @@ class Player : public Human {
 
    public:
     Player();
-    std::string getName();
+    std::string getName() const;
     int getBet() const;
     int getCash() const;
     int getWins() const;

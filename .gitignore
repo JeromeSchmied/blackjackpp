@@ -56,10 +56,10 @@ sanitycheckcpp.cc
 .ninja_log
 build.ninja
 
-/build
-/external
+build
+external
 
-/.cache
+.cache
 
 # Misc
 blackjack

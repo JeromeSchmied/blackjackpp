@@ -9,7 +9,7 @@ Player::Player() : name("Unknown"), cash(1000), bet(0), wins(0), loses(0) {}
 //////////////* Getter Functions *////
 
 // Returns name of Player
-std::string Player::getName() { return this->name; }
+std::string Player::getName() const { return this->name; }
 
 // Returns amount of bet
 int Player::getBet() const { return this->bet; }
