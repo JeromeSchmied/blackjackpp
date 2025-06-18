@@ -12,18 +12,22 @@ project('blackjackpp', 'cpp',
 )
 
 # dep: [name, github_repo, include_dir]
-gh_deps = [['cpptui', 'csboo/cpptui', '.'], ['nlohmann_json', 'nlohmann/json', 'single_include']]
+gh_deps = {
+  'cpptui': ['csboo/cpptui', 'cfa92dfdf69c6218f9cf95dac70cf8201a350184', '.'],
+  'nlohmann_json': ['nlohmann/json', 'b451735fe7bb3283336f934b3f6cd3f484f73649', 'single_include'],
+}
 
 build_client = get_option('client')
 build_server = get_option('server')
+system_deps = get_option('system-deps')
 
 if build_client
-  gh_deps += [['cpp-httplib', 'yhirose/cpp-httplib', '.']]
+  gh_deps += {'cpp-httplib': ['yhirose/cpp-httplib', '3a1f379e751ef6555f06c5c1ef367a6fce26722c', '.']}
   message('building the client')
 endif
 
 if build_server
-  gh_deps += [['crow', 'crowcpp/crow', 'include']]
+  gh_deps += {'crow': ['crowcpp/crow', 'fc3a02307d2ae387561e4d43fe58b782cb63de2d', 'include']}
   message('building the server')
 endif
 
@@ -33,22 +37,22 @@ external_dir = '.' / 'external'
 
 dep_map = {}
 
-foreach dep : gh_deps
-  name = dep[0]
-  repo = dep[1]
-  inc_subdir = dep[2]
+foreach name, details : gh_deps
+  repo = details[0]
+  commit = details[1]
+  inc_subdir = details[2]
 
   sys_dep = dependency(name, required: false)
-  if sys_dep.found()
+  if system_deps and sys_dep.found()
     message(name + ' found on system.')
     dep_map += {name: sys_dep}
   else
     dep_dir = external_dir / name
     if not fs.exists(dep_dir)
-      message(name + ' not found, cloning from https://github.com/' + repo)
-      run_command(git, 'clone', '--depth=1', 'https://github.com/' + repo, dep_dir, check: true)
+      message(name + ' not found, cloning from https://github.com/' + repo + ' @' + commit)
+      run_command(git, 'clone', '--revision=' + commit, '--depth=1', 'https://github.com/' + repo, dep_dir, check: true)
     else
-      message(name + ' already cloned at: ' + dep_dir)
+      message(name + ' already cloned to: ' + dep_dir)
     endif
     inc = include_directories(dep_dir / inc_subdir)
     dep_map += {name: declare_dependency(include_directories: inc)}
